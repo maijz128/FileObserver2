@@ -48,7 +48,6 @@ public class HttpServerImpl {
             String path = this.basePath;
             File file = Paths.get(path, filename).toFile();
             if(file.exists()){
-                exchange.sendResponseHeaders(200, 0);
                 writeStream(file, exchange);
             }else {
                 exchange.sendResponseHeaders(404, 0);
@@ -69,9 +68,11 @@ public class HttpServerImpl {
             int length = inputStream.read(data);
             inputStream.close();
 
-//        response.setContentType("image/png");
+
             String cType = Files.probeContentType(file.toPath());
-//            exchange.sendResponseHeaders("Content-Type", cType);
+            exchange.getResponseHeaders().set("Content-Type", cType);
+            exchange.getResponseHeaders().set("Content-Length", Integer.toString(length));
+            exchange.sendResponseHeaders(200, 0);
 
             OutputStream stream = exchange.getResponseBody();
             stream.write(data);
